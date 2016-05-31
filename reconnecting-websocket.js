@@ -129,6 +129,9 @@
       /** Whether this instance should log debug messages. */
       debug: false,
 
+      /** Do we attempt reconnect when a proxy-related connection error occurs, or terminate? */
+      ignoreProxyConnectionErrors: true,
+
       /** The maximum number of reconnection attempts to make. Unlimited if null. */
       maxReconnectAttempts: null,
 
@@ -296,6 +299,20 @@
                 wasClean: event.wasClean
               }
             }));
+
+            if (!self.ignoreProxyConnectionErrors) {
+              switch (event.code) {
+                case 1002:
+                case 1003:
+                case 1004:
+                case 1005:
+                case 1006:
+                case 1007:
+                case 1008:
+                case 1009:
+                  return;
+              }
+            }
           }
 
           var timeout = (self.reconnectInterval + ((self.randomizeReconnect) ? Math.random() : 0)) * Math.pow(self.reconnectDecay, self.reconnectAttempts);
